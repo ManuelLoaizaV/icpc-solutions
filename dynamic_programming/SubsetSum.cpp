@@ -58,6 +58,18 @@ void solve() {
     Long ans = 0;
     For(i, 0, sum + 1) if (DP(i, 0)) ans += i;
     cout << ans << endl;
+    /*
+    // Solucion iterativa
+    roF(pos, n - 1, 0) {
+        For(suma, 0, sum + 1) {
+            if (suma >= a[pos]) {
+                dp[sum][pos] = dp[sum][pos + 1] or dp[sum - a[pos]][pos + 1];
+            } else {
+                dp[sum][pos] = dp[sum][pos + 1];
+            }
+        }
+    }
+    */
 }
 
 int main() {
