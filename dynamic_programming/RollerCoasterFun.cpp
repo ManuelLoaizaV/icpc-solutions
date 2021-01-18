@@ -1,3 +1,4 @@
+//https://open.kattis.com/problems/rollercoasterfun
 #include <iostream>
 #include <vector>
 using namespace std;
