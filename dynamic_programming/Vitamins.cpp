@@ -1,53 +1,52 @@
-#include <bits/stdc++.h>
-#define FAST_IO ios::sync_with_stdio(0);cin.tie(NULL)
+//https://codeforces.com/problemset/problem/1042/B
+#include <iostream>
+#include <utility>
+#include <vector>
 using namespace std;
-
-const int INF = 1e9;
-const int N = 1e3;
 
 typedef long long Long;
 
-struct Juice {
-  Long price;
-  bool has_vitamin[3];
-};
+const Long INF = 1e14;
+const int N = 1e3;
 
-vector<Juice> juices;
-int n;
-Long dp[N][2][2][2];
-bool is_done[N][2][2][2];
+vector<pair<Long, int>> products;
 
-Long DP(int pos, bool has_a, bool has_b, bool has_c) {
-  if (pos == n) {
-    if (has_a && has_b && has_c) return 0;
-    return INF;
-  }
-  Long& memo = dp[pos][has_a][has_b][has_c];
-  if (is_done[pos][has_a][has_b][has_c]) return memo;
-  memo = min(DP(pos + 1, has_a, has_b, has_c), juices[pos].price + DP(pos + 1,
-        has_a | juices[pos].has_vitamin[0],
-        has_b | juices[pos].has_vitamin[1],
-        has_c | juices[pos].has_vitamin[2]));
-  is_done[pos][has_a][has_b][has_c] = true;
-  return memo;
+void TurnOn(int& mask, int bit) {
+  mask = mask | (1 << bit);
+}
+
+Long dp[N][8];
+bool is_done[N][8];
+
+Long DP(int i, int mask) {
+  if (mask == 7) return 0;
+  if (i < 0) return INF;
+  if (is_done[i][mask]) return dp[i][mask];
+  dp[i][mask] = min(DP(i - 1, mask), products[i].first + DP(i - 1, mask | products[i].second));
+  is_done[i][mask] = true;
+  return dp[i][mask];
 }
 
 int main(void) {
-  FAST_IO;
+  ios::sync_with_stdio(0);
+  cin.tie(nullptr);
+  int n;
   cin >> n;
-  juices.resize(n);
   for (int i = 0; i < n; i++) {
-    cin >> juices[i].price;
-    string s;
-    cin >> s;
-    for (int j = 0; j < 3; j++) juices[i].has_vitamin[j] = false;
-    for (char c : s) juices[i].has_vitamin[c - 'A'] = true;
+    Long value;
+    string vitamins;
+    cin >> value >> vitamins;
+    int mask = 0;
+    for (char c : vitamins) {
+      int bit = c - 'A';
+      TurnOn(mask, bit);
+    }
+    products.push_back({value, mask});
   }
-  Long ans = DP(0, 0, 0, 0);
-  if (ans >= INF) {
-    cout << -1 << '\n';
+  if (DP(n - 1, 0) < INF) {
+    cout << DP(n - 1, 0) << '\n';
   } else {
-    cout << ans << '\n';
+    cout << -1 << '\n';
   }
   return 0;
 }
