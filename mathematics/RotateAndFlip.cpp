@@ -107,9 +107,7 @@ void Solve(void) {
       cin >> p;
       lt[4][1][2] = 2 * p;
     }
-    debug(i, lt[t], composition[i]);
     Matrix multiplication = lt[t] * composition[i];
-    debug(multiplication);
     composition.push_back(multiplication);
   }
   int q;
@@ -129,4 +127,3 @@ int main(void) {
   while (t--) Solve();
   return 0;
 }
-
