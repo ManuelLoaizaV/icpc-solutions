@@ -1,58 +1,75 @@
-// Gracias, Osman
-#include <bits/stdc++.h>
-#define FAST_IO ios::sync_with_stdio(0);cin.tie(NULL)
+//https://codeforces.com/problemset/problem/20/C
+#include <algorithm>
+#include <iostream>
+#include <queue>
+#include <utility>
+#include <vector>
 using namespace std;
 
 typedef long long Long;
 typedef pair<Long, Long> Pair;
 
-const Long INF = 1e12;
+const Long INF = 1e18;
+const int N = 1e5;
 
-vector<vector<Pair>> adj;
+struct Graph {
+  vector<Pair> adj[N];
+  Long d[N], p[N];
 
-int main() {
-  FAST_IO;
-  Long n, m;
-  cin >> n >> m;
-  adj.resize(n + 1);
-  while (m--) {
-    Long u, v, w;
-    cin >> u >> v >> w;
+  void AddEdge(Long u, Long v, Long w) {
     adj[u].push_back({v, w});
     adj[v].push_back({u, w});
   }
-  vector<Long> d(n + 1, INF);
-  vector<Long> p(n + 1, -1);
-  d[1] = 0LL;
-  priority_queue<Pair, vector<Pair>, greater<Pair>> q;
-  q.push({0, 1});
-  while (q.size()) {
-    Long u = q.top().second;
-    Long w = q.top().first;
-    q.pop();
-    if (d[u] != w) continue;
-    for (Pair e : adj[u]) {
-      Long v = e.first;
-      Long nw = w + e.second;
-      if (nw < d[v]) {
-        d[v] = nw;
-        p[v] = u;
-        q.push({d[v], v});
+
+  void Dijkstra(Long s, Long n) {
+    for (int i = 0; i < n; i++) d[i] = INF;
+    d[s] = 0;
+    p[s] = -1;
+    priority_queue<Pair, vector<Pair>, greater<Pair>> q;
+    q.push({0LL, s});
+    while (!q.empty()) {
+      Pair path = q.top();
+      int u = path.second;
+      q.pop();
+      if (d[u] != path.first) continue;
+      for (Pair e : adj[u]) {
+        int v = e.first;
+        Long w = e.second;
+        if (d[u] + w < d[v]) {
+          d[v] = d[u] + w;
+          p[v] = u;
+          q.push({d[v], v});
+        }
       }
     }
   }
-  if (d[n] >= INF) {
+} graph;
+
+int main(void) {
+  ios::sync_with_stdio(0);
+  cin.tie(nullptr);
+  Long n, m;
+  cin >> n >> m;
+  for (int i = 0; i < m; i++) {
+    Long u, v, w;
+    cin >> u >> v >> w;
+    graph.AddEdge(u - 1, v - 1, w);
+  }
+  graph.Dijkstra(0, n);
+  if (graph.d[n - 1] == INF) {
     cout << -1 << '\n';
   } else {
-    Long cur = n;
-    stack<Long> ans;
-    while (cur != -1) {
-      ans.push(cur);
-      cur = p[cur];
+    vector<int> ans;
+    int current = n - 1;
+    while (current != -1) {
+      ans.push_back(current + 1);
+      current = graph.p[current];
     }
-    while(ans.size()) {
-      cout << ans.top() << " ";
-      ans.pop();
+    reverse(ans.begin(), ans.end());
+    int len = ans.size();
+    for (int i = 0; i < len; i++) {
+      if (i > 0) cout << " ";
+      cout << ans[i];
     }
     cout << '\n';
   }
