@@ -1,17 +1,11 @@
-#include <iostream>
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
-#define FAST_IO ios::sync_with_stdio(0);cin.tie(NULL)
-#define debug(x) cout << #x << " = " << x << '\n'
+#include <bits/stdc++.h>
 using namespace std;
 
 typedef long long Long;
 typedef pair<Long, Long> Pair;
 
 const int N = 3e5;
-const Long BASE[] = {29LL, 31LL};
+const Long BASE[2] = {29LL, 31LL};
 const Long MOD = 1e9 + 7;
 Long pot[N + 1][2];
 
@@ -46,10 +40,9 @@ Pair GetHash(const string& s) {
 }
 
 vector<Pair> pref;
-
-void CalculateHash(const string& s) {
+void Build(const string& s) {
   int n = s.size();
-  pref.resize(n, {0LL, 0LL});
+  pref = vector<Pair>(n, {0LL, 0LL});
   pref[0].first = pref[0].second = s[0] - 'a' + 1LL;
   for (int i = 1; i < n; i++) {
     pref[i].first = Add(Mul(pref[i - 1].first, BASE[0]), s[i] - 'a' + 1LL);
@@ -57,7 +50,7 @@ void CalculateHash(const string& s) {
   }
 }
 
-Pair GetHash(int l, int r) {
+Pair Query(int l, int r) {
   if (l == 0) return pref[r];
   Pair ans;
   ans.first = Sub(pref[r].first, Mul(pref[l - 1].first, pot[r - l + 1][0]));
@@ -66,49 +59,44 @@ Pair GetHash(int l, int r) {
 }
 
 int main(void) {
-  FAST_IO;
+  ios::sync_with_stdio(false);
+  cin.tie(0);
   Precalculate();
-  int queries;
-  cin >> queries;
-  map<int, set<Pair>> exists;
-
-  while (queries--) {
-    int type;
-    cin >> type;
-    string s;
-    cin >> s;
-    if (type == 1) {
-      int len = s.size();
-      Pair current = GetHash(s);
-      if (exists.count(len)) {
-        exists[len].insert(current);
+  int tt;
+  cin >> tt;
+  map<int, set<Pair>> words;
+  while (tt--) {
+    int t;
+    cin >> t;
+    if (t == 1) {
+      string s;
+      cin >> s;
+      int n = (int) s.size();
+      if (words.count(n) > 0) {
+        words[n].insert(GetHash(s));
       } else {
-        exists[len] = {current};
+        words[n] = {GetHash(s)};
       }
-    }
-    if (type == 2) {
-      int len = s.size();
-      Pair current = GetHash(s);
-      auto it = exists.find(len);
-      if ((it->second).size() == 1) {
-        exists.erase(it);
-      } else {
-        (it->second).erase(current);
-      }
-    }
-    if (type == 3) {
-      CalculateHash(s);
+    } else if (t == 2) {
+      string s;
+      cin >> s;
+      int n = (int) s.size();
+      words[n].erase(GetHash(s));
+      if (words[n].size() == 0) words.erase(n);
+    } else {
+      string s;
+      cin >> s;
+      Build(s);
       int n = s.size();
-      Long cnt = 0;
-      for (auto it = exists.begin(); it != exists.end(); it++) {
+      Long ans = 0;
+      for (auto it = words.begin(); it != words.end(); it++) {
         int len = it->first;
         if (len > n) break;
         for (int i = 0; i < n - len + 1; i++) {
-          Pair current = GetHash(i, i + len - 1);
-          if ((it->second).count(current)) cnt++;
-        } 
+          if ((it->second).count(Query(i, i + len - 1)) > 0) ans++;
+        }
       }
-      cout << cnt << endl;
+      cout << ans << endl;
     }
   }
   return 0;
