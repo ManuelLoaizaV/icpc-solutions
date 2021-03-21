@@ -1,89 +1,52 @@
-// Gracias, Rodolfo
-// Gracias, MarcosK
-// Gracias, Graphter
-// Obrigado, Dilson
-//#pragma GCC optimize ("Ofast,unroll-loops")
-//#pragma GCC target ("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
+//https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=4408
 #include <bits/stdc++.h>
-#include <unistd.h>
 using namespace std;
-#define fastio ios::sync_with_stdio(0);cin.tie(0)
-#define For(i,a,b) for (Long i = a; i < b; i++)
-#define roF(i,a,b) for (Long i = a; i >= b; i--)
-#define pb push_back
-#define mp make_pair
-#define ff first
-#define ss second
-#define all(v) (v).begin(),(v).end()
 
 typedef long long Long;
-typedef long double Double;
-typedef unsigned long long ULong;
 typedef pair<Long, Long> Pair;
-typedef vector<Long> Vector;
-typedef vector<Pair> PairVector;
 
-const int N = 54;
-const Long INF = 1e18;
-const Double EPS = 10e-9;
+const int N = 64;
 
+vector<int> s;
 Pair dp[N][2];
-bool used[N][2];
-deque<Long> s;
+bool done[N][2];
 
-Pair DP(Long pos, Long lower) {
-	if (pos == s.size()) return {1LL, 0LL};
-	if (used[pos][lower]) return dp[pos][lower];
-	Pair& ans = dp[pos][lower];
-	ans = {0, 0};
-	if (lower) {
-		For(digit, 0, 2) {
-			Pair next = DP(pos + 1, true);
-			ans.first += next.first;
-			ans.second += (digit * next.first + next.second);
-		}
-	} else {
-		For(digit, 0, s[pos]) {
-			Pair next = DP(pos + 1, true);
-			ans.first += next.first;
-			ans.second += (digit * next.first + next.second);
-		}
-		Pair next = DP(pos + 1, false);
-		ans.first += next.first;
-		ans.second += (s[pos] * next.first + next.second);
-	}
-	used[pos][lower] = true;
-	return ans;
+Pair DP(int pos, bool lower) {
+  if (pos == (int) s.size()) return {1, 0};
+  if (done[pos][lower]) return dp[pos][lower];
+  dp[pos][lower] = {0, 0};
+  int lim = (lower) ? 1 : s[pos];
+  for (int d = 0; d <= lim; d++) {
+    Pair nxt = DP(pos + 1, lower || d < lim);
+    dp[pos][lower].first += nxt.first;
+    dp[pos][lower].second += nxt.second;
+    dp[pos][lower].second += (Long) d * nxt.first;
+  }
+  done[pos][lower] = true;
+  return dp[pos][lower];
 }
 
-void clear() {
-	For(i, 0, N) {
-		For(j, 0, 2) {
-			used[i][j] = false;
-		}
-	}
+Long Solve(Long n) {
+  if (n <= 0) return 0;
+  s.clear();
+  while (n > 0) {
+    s.push_back(n & 1);
+    n >>= 1;
+  }
+  for (int i = 0; i < (int) s.size(); i++)
+    for (int j = 0; j < 2; j++)
+      done[i][j] = false;
+  reverse(s.begin(), s.end());
+  return DP(0, false).second;
 }
 
-Long count(Long n) {
-	if (n <= 0) return 0;
-	s.clear();
-	For(i, 0, N) {
-		Long digit = n & 1LL;
-		s.push_front(digit);
-		n >>= 1LL;
-	}
-	clear();
-	return DP(0, false).second;
-}
-
-void solve(Long left, Long right) {
-	Long ans = count(right) - count(left - 1);
-	cout << ans << endl;
-}
-
-int main() {
-	fastio;
-	Long left, right;
-	while (cin >> left >> right) solve(left, right);
-	return 0;
+int main(void) {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+  Long a, b;
+  while (cin >> a >> b) {
+    Long ans = Solve(b) - Solve(a - 1);
+    cout << ans << '\n';
+  }
+  return 0;
 }
