@@ -1,3 +1,4 @@
+// https://codeforces.com/gym/345883/problem/A
 #include <bits/stdc++.h>
 #define debug(x) cout << #x << " = " << x << '\n'
 using namespace std;
