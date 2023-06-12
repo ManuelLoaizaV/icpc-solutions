@@ -1,45 +1,28 @@
-//https://codeforces.com/problemset/problem/474/B
-#include <bits/stdc++.h>
-#include <unistd.h>
-#define FAST_IO ios::sync_with_stdio(0);cin.tie(NULL)
-#define all(v) (v).begin(),(v).end()
+// https://codeforces.com/problemset/problem/474/B
+#include <algorithm>
+#include <iostream>
+#include <vector>
 using namespace std;
 
-typedef long long Long;
-typedef long double Double;
-typedef unsigned long long ULong;
-typedef pair<Long, Long> Pair;
-
-const int N = 1e6;
-const Long INF = 1e18;
-const Double EPS = 1e-9;
-
-mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
-Long random(Long a, Long b) { return uniform_int_distribution<Long> (a, b) (rng); }
-
-void Solve(void) {
+int main(void) {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
   int n;
   cin >> n;
-  vector<int> a(n);
-  for (int i = 0; i < n; i++) cin >> a[i];
-  vector<int> sum(n);
-  sum[0] = a[0];
-  for (int i = 1; i < n; i++) sum[i] = sum[i - 1] + a[i];
+  vector<int> v(n);
+  for (int i = 0; i < n; i++) cin >> v[i];
+  vector<int> prefixes(n);
+  prefixes[0] = v[0];
+  for (int i = 1; i < n; i++) {
+    prefixes[i] = prefixes[i - 1] + v[i];
+  }
   int q;
   cin >> q;
   while (q--) {
-    int cnt;
-    cin >> cnt;
-    int pos = lower_bound(sum.begin(), sum.end(), cnt) - sum.begin();
-    cout << pos + 1 << '\n';
+    int worm;
+    cin >> worm;
+    int box_index = lower_bound(prefixes.begin(), prefixes.end(), worm) - prefixes.begin();
+    cout << box_index + 1 << '\n';
   }
-}
-
-int main(void) {
-  FAST_IO;
-  int t = 1;
-  //cin >> t;
-  while (t--) Solve();
   return 0;
 }
-
