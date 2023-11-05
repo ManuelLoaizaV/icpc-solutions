@@ -1,58 +1,64 @@
+// https://codeforces.com/problemset/problem/977/E
+#include <iomanip>
 #include <iostream>
+#include <cassert>
+#include <utility>
 #include <vector>
+#define debug(x) cout << #x << " = " << x << ENDL
 using namespace std;
 
-const int INF = 1e9;
-const int N = 2e5;
+typedef long long Long;
 
-bool is_cycle;
+const char ENDL = '\n';
 
-struct Graph {
-  vector<int> adj[N];
-  int in[N], out[N], deg[N], timer;
-  void Clear(int n) {
-    for (int i = 0; i < n; i++) {
-      adj[i].clear();
-      in[i] = out[i] = 0;
-      deg[i] = 0;
+int n_vertices;
+int n_edges;
+
+vector<vector<int>> adj;
+vector<int> degrees;
+vector<bool> used;
+
+void Init() {
+    adj.resize(n_vertices);
+    degrees.resize(n_vertices, 0);
+    used.resize(n_vertices, false);
+}
+
+void Add(int from, int to) {
+    adj[from].push_back(to);
+    adj[to].push_back(from);
+    degrees[from]++;
+    degrees[to]++;
+}
+
+bool DFS(int u) {
+    used[u] = true;
+    bool all_degree_2 = degrees[u] == 2;
+    for (int v : adj[u]) {
+        if (used[v]) continue;
+        all_degree_2 &= DFS(v);
     }
-    timer = 0;
-  }
-  void AddEdge(int u, int v) {
-    adj[u].push_back(v);
-    adj[v].push_back(u);
-    deg[u]++;
-    deg[v]++;
-  }
-  void DFS(int u) {
-    in[u] = ++timer;
-    if (deg[u] != 2) is_cycle = false;
-    for (int v : adj[u]) if (in[v] == 0) DFS(v);
-    out[u] = ++timer;
-  }
-} g;
-
+    return all_degree_2;
+}
 
 int main(void) {
-  ios::sync_with_stdio(0);
-  cin.tie(nullptr);
-  int n, m;
-  cin >> n >> m;
-  for (int i = 0; i < m; i++) {
-    int u, v;
-    cin >> u >> v;
-    u--;
-    v--;
-    g.AddEdge(u, v);
-  }
-  int ans = 0;
-  for (int i = 0; i < n; i++) {
-    if (g.in[i] == 0) {
-      is_cycle = true;
-      g.DFS(i);
-      if (is_cycle) ans++;
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cin >> n_vertices >> n_edges;
+    Init();
+    for (int i = 0; i < n_edges; i++) {
+        int u, v;
+        cin >> u >> v;
+        u--;
+        v--;
+        Add(u, v);
     }
-  }
-  cout << ans << '\n';
-  return 0;
+    int cnt = 0;
+    for (int i = 0; i < n_vertices; i++) {
+        if (used[i]) continue;
+        bool all_degree_2 = DFS(i);
+        if (all_degree_2) cnt++;
+    }
+    cout << cnt << ENDL;
+    return 0;
 }
