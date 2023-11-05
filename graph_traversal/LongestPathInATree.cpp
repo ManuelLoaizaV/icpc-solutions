@@ -1,66 +1,70 @@
+// https://www.spoj.com/problems/PT07Z/en/
+#include <iomanip>
 #include <iostream>
-#include <deque>
+#include <cassert>
+#include <utility>
 #include <vector>
 using namespace std;
 
-const int INF = 1e9;
-const int N = 1e4;
+typedef long long Long;
 
-struct Graph {
-  vector<int> adj[N];
-  int d[N];  // BFS
-  void Clear(int n) {
-    for (int i = 0; i < n; i++) {
-      adj[i].clear();
-    }
-  }
-  void AddEdge(int u, int v) {
-    adj[u].push_back(v);
-    adj[v].push_back(u);
-  }
-  void BFS(int s, int n) {
-    for (int i = 0; i < n; i++) d[i] = INF;
-    d[s] = 0;
-    deque<int> tour;
-    tour.push_back(s);
-    while (!tour.empty()) {
-      int u = tour.front();
-      tour.pop_front();
-      for (int v : adj[u]) {
-        if (d[v] == INF) {
-          d[v] = d[u] + 1;
-          tour.push_back(v);
-        }
-      }
-    }
-  }
-} g;
+const char ENDL = '\n';
 
+int n_vertices;
+int n_edges;
+
+vector<vector<int>> adj;
+vector<int> depths;
+
+void Init() {
+    adj.resize(n_vertices);
+    depths.resize(n_vertices, 0);
+    n_edges = n_vertices - 1;
+}
+
+void Add(int from, int to) {
+    adj[from].push_back(to);
+    adj[to].push_back(from);
+}
+
+void DFS(int u, int p = -1) {
+    if (p == -1) {
+        depths[u] = 0;
+    } else {
+        depths[u] = depths[p] + 1;
+    }
+    for (int v : adj[u]) {
+        if (v == p) continue;
+        DFS(v, u);
+    }
+}
 
 int main(void) {
-  ios::sync_with_stdio(0);
-  cin.tie(nullptr);
-  int n;
-  cin >> n;
-  for (int i = 0; i < n - 1; i++) {
-    int u, v;
-    cin >> u >> v;
-    u--;
-    v--;
-    g.AddEdge(u, v);
-  }
-  g.BFS(0, n);
-  int mx = 0;
-  int id = 0;
-  for (int i = 0; i < n; i++) {
-    if (g.d[i] > mx) {
-      mx = g.d[i];
-      id = i;
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cin >> n_vertices;
+    Init();
+    for (int i = 0; i < n_edges; i++) {
+        int u, v;
+        cin >> u >> v;
+        u--;
+        v--;
+        Add(u, v);
     }
-  }
-  g.BFS(id, n);
-  mx = 0;
-  for (int i = 0; i < n; i++) mx = max(mx, g.d[i]);
-  cout << mx << '\n';
-  return 0;
+    DFS(0);
+    int max_depth = -1;
+    int new_root = -1;
+    for (int i = 0; i < n_vertices; i++) {
+        if (depths[i] > max_depth) {
+            max_depth = depths[i];
+            new_root = i;
+        }
+    }
+    DFS(new_root);
+    max_depth = -1;
+    for (int i = 0; i < n_vertices; i++) {
+        max_depth = max(max_depth, depths[i]);
+    }
+    cout << max_depth << ENDL;
+    return 0;
 }
