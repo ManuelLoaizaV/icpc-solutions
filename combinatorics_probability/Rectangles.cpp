@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/abc186/tasks/abc186_d
+// https://codeforces.com/problemset/problem/844/B
 #include <iostream>
 #include <vector>
 
