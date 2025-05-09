@@ -1,45 +1,44 @@
+// https://atcoder.jp/contests/abc186/tasks/abc186_d
 #include <iostream>
-#define FAST_IO ios::sync_with_stdio(0);cin.tie(nullptr)
-using namespace std;
-
-typedef long long Long;
-
-const int N = 55;
-Long nck[N][N];
-bool a[N][N], is_done[N][N];
-
-Long nCk(int n, int k) {
-  if (k == 0 || n == k) return 1LL;
-  if (is_done[n][k]) return nck[n][k];
-  nck[n][k] = nCk(n - 1, k - 1) + nCk(n - 1, k);
-  is_done[n][k] = true;
-  return nck[n][k];
-}
+#include <vector>
 
 int main(void) {
-  FAST_IO;
-  int n, m;
-  cin >> n >> m;
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < m; j++) {
-      cin >> a[i][j];
+    int n, m;
+    std::cin >> n >> m;
+    std::vector<std::vector<int>> v(n, std::vector<int>(m));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            std::cin >> v[i][j];
+        }
     }
-  }
-  Long ans = n * m;
-  for (int i = 0; i < n; i++) {
-    int cnt = 0;
-    for (int j = 0; j < m; j++) if (a[i][j]) cnt++;
-    for (int k = 2; k <= cnt; k++) ans += nCk(cnt, k);
-    cnt = m - cnt;
-    for (int k = 2; k <= cnt; k++) ans += nCk(cnt, k);
-  }
-  for (int j = 0; j < m; j++) {
-    int cnt = 0;
-    for (int i = 0; i < n; i++) if (a[i][j]) cnt++;
-    for (int k = 2; k <= cnt; k++) ans += nCk(cnt, k);
-    cnt = n - cnt;
-    for (int k = 2; k <= cnt; k++) ans += nCk(cnt, k);
-  }
-  cout << ans << '\n';
-  return 0;
+    long long rectangles{0LL};
+    for (int i = 0; i < n; ++i) {
+        long long black{0LL};
+        for (int j = 0; j < m; ++j) {
+            if (v[i][j]) black++;
+        }
+        if (black > 0LL) {
+            rectangles += (1LL << black) - 1LL;
+        }
+        long long white{m - black};
+        if (white > 0LL) {
+            rectangles += (1LL << white) - 1LL;
+        }
+    }
+    for (int j = 0; j < m; ++j) {
+        long long black{0LL};
+        for (int i = 0; i < n; ++i) {
+            if (v[i][j]) black++;
+        }
+        if (black > 0) {
+            rectangles += (1LL << black) - 1LL;
+        }
+        long long white{n - black};
+        if (white > 0) {
+            rectangles += (1LL << white) - 1LL;
+        }
+    }
+    rectangles -= n * m;
+    std::cout << rectangles << std::endl;
+    return 0;
 }
